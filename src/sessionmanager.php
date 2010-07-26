@@ -16,12 +16,21 @@ define('IXG_MEMCACHED_PORT', 11211);
 
 class session_manager {
 	private $use_mc = false;
+	private $mc_type = 0; // 1 - Memcached, 2 - Memcache
 	private $mc;
 	private $session_id;
 	private $session_data = array();
 	
 	public function __construct() {
+		
 		if(defined('IXG_MEMCACHED')) {
+			if(class_exists("Memcached") && IXG_MEMCACHED_TYPE == "MEMCACHED")
+				$this->mc_type = 1;
+			elseif(class_exists("Memcache") && IXG_MEMCACHED_TYPE == "MEMCACHE")
+				$this->mc_type = 2;
+		}
+		
+		if(defined('IXG_MEMCACHED') && $this->mc_type > 0) {
 			$this->use_mc = true;
 			$ip = (getenv(HTTP_X_FORWARDED_FOR))
 				?  getenv(HTTP_X_FORWARDED_FOR)
@@ -52,7 +61,7 @@ class session_manager {
 				
 			}
 			
-			if(IXG_MEMCACHE_TYPE=='MEMCACHED') {
+			if(IXG_MEMCACHED_TYPE=='MEMCACHED') {
 				$memcache = new Memcached();
 				$memcache->addServer(IXG_MEMCACHED, IXG_MEMCACHED_PORT) or die('Cannot connect to memcache');
 			} else {
