@@ -32,7 +32,7 @@ class interchange {
 		} elseif ($split_domain[$level] != $domain)
 			return false;
 		
-		$output = self::doChildren($node->policies, $level + 1);
+		$output = self::traverse($node->policies, $level + 1);
 		if(is_string($output) && !empty($domain->log))
 			define('IXG_LOG', (string)$domain->log);
 		
@@ -53,7 +53,7 @@ class interchange {
 		// Shift the path up a directory.
 		array_shift($actual_file);
 		
-		$result = self::doChildren($node->policies, 0, $folder_level + 1);
+		$result = self::traverse($node->policies, 0, $folder_level + 1);
 		
 		if($result === false)
 			return true;
@@ -61,7 +61,7 @@ class interchange {
 			return $result;
 	}
 	
-	private function doChildren($node, $domain_level = 0, $folder_level = 0) {
+	private function traverse($node, $domain_level = 0, $folder_level = 0) {
 		global $libraries;
 		
 		foreach($node as $child) {
