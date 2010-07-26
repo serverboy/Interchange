@@ -18,6 +18,9 @@ header('X-Powered-By: Interchange');
 $location = dirname(__FILE__);
 define('IXG_PATH_PREFIX', $location . (strlen($location) > 1 ? '/' : ''));
 
+if(file_exists("./constants.php"))
+	require("./constants.php");
+
 // Get the protocol
 $port = intval($_SERVER['SERVER_PORT']);
 switch($port) {
@@ -239,7 +242,10 @@ if ( $site === false ) {
 			if(is_file($dir)) {
 				loadLocalFile($dir, EXTENSION);
 				return true;
-			} elseif(is_dir($dir) && (TRAILING_SLASH || FILE == '')) {
+			} elseif(is_dir($dir) && !TRAILING_SLASH && REDIRECT_TRAILING_SLASH) {
+				header('Location: ' . URL . '/');
+				return true;
+			} elseif(is_dir($dir) && (TRAILING_SLASH || FILE == '' || HANDLE_TRAILING_SLASH)) {
 				require("./defaults.php");
 				
 				foreach($defaults as $default=>$execute) {
@@ -250,7 +256,7 @@ if ( $site === false ) {
 						if($execute)
 							require("$dir/$default");
 						else
-							readfile("$dir/$default");
+							loadLocalFile("$dir/$default");
 						return true;
 					}
 				}
@@ -281,23 +287,12 @@ if ( $site === false ) {
 	
 	if(is_file(PATH_PREFIX . '/endpoint.php')) {
 		$session = new session_manager();
-		// Allows the use of "break" anywhere.
-		switch(0) {
-			case 0:
-				require(PATH_PREFIX . '/endpoint.php');
-		}
+		require(PATH_PREFIX . '/endpoint.php');
 	} else {
-		//var_dump(ini_get("include_path"));
 		ini_set("include_path", ini_get("include_path") . ':' . PATH_PREFIX);
-		//var_dump(ini_get("include_path"));
-		
-		//require(IXG_PATH_PREFIX . 'overrides.php');
-		
-		
 		if(!doload(PATH_PREFIX . '/' . FILE)) {
 			header('HTTP/1.0 404 Not Found');
 			readfile('./pages/fail.php');
-			//echo "<!--", PATH_PREFIX , '/./' , FILE, "-->";
 		}
 	}
 }

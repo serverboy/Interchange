@@ -88,8 +88,9 @@ class interchange {
 					$http_code = intval($child->http);
 					
 					require_once(IXG_PATH_PREFIX . 'http_codes.php');
-					if(isset($error_codes[$http_code]))
-						header($error_codes[$http_code]);
+					if(!isset($error_codes[$http_code]))
+						$http_code = 404;
+					header($error_codes[$http_code]);
 					
 					if(isset($child->page))
 						require(IXG_PATH_PREFIX . $child->page);

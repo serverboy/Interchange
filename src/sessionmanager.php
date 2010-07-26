@@ -7,13 +7,6 @@
  * 
  */
 
-define('IXG_SECRET', 'THISISASECRET');
-
-// Comment these lines out to disable memcached support
-define('IXG_MEMCACHED', 'localhost');
-define('IXG_MEMCACHED_TYPE', 'MEMCACHED');
-define('IXG_MEMCACHED_PORT', 11211);
-
 class session_manager {
 	private $use_mc = false;
 	private $mc_type = 0; // 1 - Memcached, 2 - Memcache
@@ -42,7 +35,7 @@ class session_manager {
 				$session = $_COOKIE['ixg_session'];
 				$token = $_COOKIE['ixg_token'];
 				
-				$hash = sha1($ip . $session . IXG_SECRET);
+				$hash = sha1($ip . $session . SECRET);
 				if($hash == $token) {
 					$has_session = true;
 					$this->session_id = $session;
@@ -52,7 +45,7 @@ class session_manager {
 			
 			if(!$has_session) {
 				$session = uniqid();
-				$token = sha1($ip . $session . IXG_SECRET);
+				$token = sha1($ip . $session . SECRET);
 				
 				$this->session_id = $session;
 				
