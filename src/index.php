@@ -240,20 +240,17 @@ if ( $site === false ) {
 				loadLocalFile($dir, EXTENSION);
 				return true;
 			} elseif(is_dir($dir) && (TRAILING_SLASH || FILE == '')) {
-				$defaults = array(
-					'index.php',
-					'index.html',
-					'index.htm',
-					'index.xml',
-					'index.phtml'
-				);
+				require("./defaults.php");
 				
-				foreach($defaults as $default) {
+				foreach($defaults as $default=>$execute) {
 					if(file_exists("$dir/$default")) {
 						
 						$session = new session_manager();
 						
-						require("$dir/$default");
+						if($execute)
+							require("$dir/$default");
+						else
+							readfile("$dir/$default");
 						return true;
 					}
 				}
