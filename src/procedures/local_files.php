@@ -25,7 +25,7 @@ function loadScriptFile($file) {
 	require($file);
 }
 
-function loadLocalFile($file, $extension = '', $cache_for = 0) {
+function loadLocalFile($file, $extension = '') {
 	
 	if(!file_exists($file) || !is_file($file)) {
 		header('HTTP/1.0 404 Not Found');
@@ -143,7 +143,6 @@ function loadLocalFile($file, $extension = '', $cache_for = 0) {
 }
 
 function doload($dir) {
-	
 	if(file_exists($dir)) {
 		if(is_file($dir)) {
 			loadLocalFile($dir, EXTENSION);
@@ -155,11 +154,15 @@ function doload($dir) {
 			require("defaults.php");
 			
 			foreach($defaults as $default=>$execute) {
+				# TODO: Optimize this!
+				$extension = explode('.', $default);
+				$extension = $extension[1];
+				
 				if(file_exists("$dir/$default")) {
 					if($execute)
 						loadScriptFile("$dir/$default");
 					else
-						loadLocalFile("$dir/$default");
+						loadLocalFile("$dir/$default", $extension);
 					return true;
 				}
 			}
