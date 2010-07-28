@@ -61,7 +61,7 @@ function loadLocalFile($file, $extension = '') {
 			$range = substr($range, 6); // Skip "bytes "
 			
 			$range = explode('-',$range);
-			if(($start = intval($range[0]))<=0)
+			if(($start = (int)$range[0])<=0)
 				$start = 0;
 			if(!isset($range[1]) || ($end = intval($range[1]))<=0)
 				$end = $filesize;
@@ -74,7 +74,6 @@ function loadLocalFile($file, $extension = '') {
 				$start = intval($_REQUEST['start']);
 			if(isset($_REQUEST['end']))
 				$end = intval($_REQUEST['end']);
-			
 			
 		}
 		
@@ -90,7 +89,7 @@ function loadLocalFile($file, $extension = '') {
 		
 		$length = $end - $start;
 		
-		if($start > 0 && defined('EXTENSION') && EXTENSION == 'flv') {
+		if($start > 0 && defined('EXTENSION') && strtoupper(EXTENSION) == 'FLV') {
 			echo 'FLV',
 				pack('C', 1),
 				pack('C', 1),
@@ -148,7 +147,11 @@ function doload($dir) {
 			loadLocalFile($dir, EXTENSION);
 			return true;
 		} elseif(is_dir($dir) && !TRAILING_SLASH && REDIRECT_TRAILING_SLASH) {
-			header('Location: ' . URL . '/');
+			if($_SERVER['REQUEST_METHOD'] == "POST") {
+				header('HTTP/1.1 503 Service Unavailable');
+				readfile('./pages/fail.php');
+			} else
+				header('Location: ' . URL . '/');
 			return true;
 		} elseif(is_dir($dir) && (TRAILING_SLASH || FILE == '' || HANDLE_TRAILING_SLASH)) {
 			require("defaults.php");
