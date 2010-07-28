@@ -64,6 +64,7 @@ if ( $site === false ) {
 	require('logging.php');
 	require('procedures/local_files.php');
 	require('procedures/libraries.php');
+	require('pipes.php'); // Must be loaded after libraries.
 	
 	if(is_file(PATH_PREFIX . '/endpoint.php')) {
 		loadScriptFile(PATH_PREFIX . '/endpoint.php');

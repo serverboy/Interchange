@@ -2,7 +2,7 @@
 
 /*
 Serverboy Interchange
-Library handler
+Piping Engine
 
 Copyright 2010 Serverboy Software; Matt Basta
 
@@ -10,7 +10,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+   http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,31 +20,20 @@ limitations under the License.
 
 */
 
-foreach($libraries as $lib)
-	require("./libraries/$lib.php");
-
-function getLib($lib) {
-	static $libs;
+class pipe {
 	
-	if (isset($libs[$lib])) return $libs[$lib];
+	public static function through($data, $through) {
+		
+		if(is_array($through)) {
+			foreach($through as $pipe) {
+				$data = pipe::through($data, $pipe);
+			}
+			return $data;
+		}
+		
+		$pipe_function = getPipe($through);
+		return $pipe_function($data);
+		
+	}
 	
-	require("./libraries/$lib.php");
-	
-	$lib_ref = "lib_$lib";
-	$nlib = new $lib_ref();
-	$libs[$lib] =& $nlib;
-	
-	if(method_exists($nlib, 'init')) $nlib->init();
-	
-	return $nlib;
 }
-function getPipe($pipe) {
-	static $pipes;
-	
-	if (isset($pipes[$pipe])) return $pipes[$pipe];
-	
-	require("./pipes/$pipe.php");
-	return "execute_$pipe";
-}
-
-unset($libraries);
