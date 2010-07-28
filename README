@@ -6,3 +6,5 @@ Interchange is a PHP application framework that is designed to make developing w
 
 Copyright 2010 Serverboy Software; Matt Basta
 For license information see the LICENSE file.
+
+The licenses of various third-party components can be found in their respective directories. Note that these licenses may be incompatible with your own. No third-party component is critical to the operation of Interchange and can be safely removed.
