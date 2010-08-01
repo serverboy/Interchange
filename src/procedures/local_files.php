@@ -63,7 +63,7 @@ function loadLocalFile($file, $extension = '') {
 			$range = explode('-',$range);
 			if(($start = (int)$range[0])<=0)
 				$start = 0;
-			if(!isset($range[1]) || ($end = intval($range[1]))<=0)
+			if(!isset($range[1]) || ($end = (int)$range[1])<=0)
 				$end = $filesize;
 			
 		} else {
@@ -71,9 +71,9 @@ function loadLocalFile($file, $extension = '') {
 			$end = $filesize;
 			
 			if(isset($_REQUEST['start']))
-				$start = intval($_REQUEST['start']);
+				$start = (int)$_REQUEST['start'];
 			if(isset($_REQUEST['end']))
-				$end = intval($_REQUEST['end']);
+				$end = (int)$_REQUEST['end'];
 			
 		}
 		
@@ -89,7 +89,7 @@ function loadLocalFile($file, $extension = '') {
 		
 		$length = $end - $start;
 		
-		if($start > 0 && defined('EXTENSION') && strtoupper(EXTENSION) == 'FLV') {
+		if($start > 0 && defined('EXTENSION') && EXTENSION == 'flv') {
 			echo 'FLV',
 				pack('C', 1),
 				pack('C', 1),
@@ -101,9 +101,9 @@ function loadLocalFile($file, $extension = '') {
 		fseek($fh, $start);
 		
 		while(!feof($fh) && $length > 0 && !(connection_aborted() || connection_status() == 1)) {
-			echo fread($fh, min($length, 4096));
+			echo fread($fh, min($length, PACKET_SIZE));
 			flush();
-			$length -= 4096;
+			$length -= PACKET_SIZE;
 		}
 		
 		fclose($fh);
@@ -124,11 +124,11 @@ function loadLocalFile($file, $extension = '') {
 		header("Expires: Tue, 01 Dec 2037 16:00:00 GMT");
 		$cache_for = 31536000;
 	} else {
-		header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $cache_for) . ' GMT');
+		header('Expires: ' . gmdate('D, d M Y H:i:s', (int)$_SERVER["REQUEST_TIME"] + $cache_for) . ' GMT');
 	}
 	header("Cache-Control: public, max-age=$cache_for");
 	
-	header('Age: ' . ((time() - $last_modified) % $cache_for));
+	header('Age: ' . (((int)$_SERVER["REQUEST_TIME"] - $last_modified) % $cache_for));
 	header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $last_modified) . ' GMT');
 	
 	// Do some GZip goodness
@@ -153,7 +153,7 @@ function doload($dir) {
 			} else
 				header('Location: ' . URL . '/');
 			return true;
-		} elseif(is_dir($dir) && (TRAILING_SLASH || FILE == '' || HANDLE_TRAILING_SLASH)) {
+		} elseif(is_dir($dir) && (TRAILING_SLASH || FILENAME == '' || HANDLE_TRAILING_SLASH)) {
 			require("defaults.php");
 			
 			foreach($defaults as $default=>$execute) {

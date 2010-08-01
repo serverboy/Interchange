@@ -54,7 +54,7 @@ class interchange {
 		
 		$output = self::traverse($node->policies, $level + 1);
 		if(is_string($output) && !empty($domain->log))
-			define('IXG_LOG', (string)$domain->log);
+			define('`', (string)$domain->log);
 		
 		return $output;
 	}

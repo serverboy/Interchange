@@ -3,6 +3,8 @@ Version 0.2
 
 Interchange is a PHP application framework that is designed to make developing web applications simple, convenient, and painless. It also adds a host of handy features that enhance your application with both performance as well as security.
 
+Minimum PHP version: 5.1.2
+
 
 Copyright 2010 Serverboy Software; Matt Basta
 For license information see the LICENSE file.

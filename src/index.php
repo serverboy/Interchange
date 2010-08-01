@@ -28,12 +28,12 @@ define('IXG_PATH_PREFIX', $location . (strlen($location) > 1 ? '/' : ''));
 if(file_exists("./constants.php"))
 	require("./constants.php");
 
-require("procedures/url_parser.php");
-require("parser.php");
+require("helpers/keyval.php");
 
 $libraries = array();
 $wildcards = array();
-$site = interchange::parse('index.json');
+require("parser.php");
+require("procedures/url_parser.php");
 
 if(!defined('IXG_LOG'))
 	define('IXG_LOG', IXG_PATH_PREFIX . 'access.log');
@@ -43,21 +43,25 @@ if(count($actual_file) == 0)
 else
 	define('FILE', urldecode(implode('/', $actual_file)));
 
+/*
 $directories = $actual_file;
 if(defined('EXTENSION'))
 	$directories = array_slice($directories, 0, count($directories) - 1);
 define('FULLPATH', implode('/', $directories));
+*/
 
 if ( $site === false ) {
-	//header('HTTP/1.0 404 Not Found');
+	header('HTTP/1.1 404 Not Found');
 	readfile('pages/fail.php');
 } else {
 	
 	define('PATH_PREFIX', IXG_PATH_PREFIX . 'endpoints/' . $site);
 	
 	// Do some cleanup
-	$initialized = array('port', 'directories', 'domain', 'split_domain', 'minlen', 'tld', 'file', 'url', 'site', 'final_path');
-	foreach($initialized as $i) unset($$i);
+	$initialized = array('port', 'directories', 'domain', 'split_domain', 'tld', 'file', 'url', 'site', 'final_path', 'expl');
+	foreach($initialized as $i)
+		if(isset($$i))
+			unset($$i);
 	
 	require('sessionmanager.php');
 	require('views.php');
@@ -70,8 +74,9 @@ if ( $site === false ) {
 		loadScriptFile(PATH_PREFIX . '/endpoint.php');
 	} else {
 		ini_set("include_path", ini_get("include_path") . ':' . PATH_PREFIX);
-		if(!doload(PATH_PREFIX . '/' . FILE)) {
-			header('HTTP/1.0 404 Not Found');
+		
+		if(!doload(PATH_PREFIX . '/' . REQUESTED_FILE)) {
+			header('HTTP/1.1 404 Not Found');
 			readfile('./pages/fail.php');
 		}
 	}

@@ -20,8 +20,8 @@ limitations under the License.
 
 */
 
+$port = (int)$_SERVER['SERVER_PORT'];
 // Get the protocol
-$port = intval($_SERVER['SERVER_PORT']);
 switch($port) {
 	case '443':
 		$protocol = 'https';
@@ -34,50 +34,85 @@ switch($port) {
 		break;
 }
 
-// Get the domain
 $domain = $_SERVER['SERVER_NAME'];
-$split_domain = explode('.', $domain);
-$split_domain = array_reverse($split_domain);
-$minlen = 2;
-do {
-	$minlen++;
-	$tld = array_shift($split_domain);
-	$split_domain[0] .= '.' . $tld;
-	if($minlen > 3)
-		$minlen--;
-} while (strlen($split_domain[0]) <= $minlen);
+$path = $_SERVER['REQUEST_URI'];
 
-// Get the path and file
-$file = $_SERVER['REQUEST_URI'];
-$file = substr($file, 1); // Strip the leading slash
-if(strpos($file, '?') !== false)
-	$file = substr($file, 0, strpos($file, '?'));
-$path = $file;
-$path = str_replace('//', '/', $path);
-$path = str_replace('/./', '/', $path);
-if(substr($path, -1) == '/') {
-	$path = substr($path, 0, strlen($path) - 1);
-	define("TRAILING_SLASH", true);
-} else
-	define("TRAILING_SLASH", false);
-$path = explode('/', $path);
+$url = "$protocol://$domain/$path";
+if($IXG_KV_URL_CACHE)
+	$url_id = SUPER_SECRET . ':' . sha1($url);
+//$keyval->destroy($url_id);
 
-foreach($path as $p)
-	if($p == '..')
-		die('Invalid path.');
-
-$final_path = $path[count($path) - 1];
-if(strpos($final_path, '.') !== false) {
-	$expl = explode('.', $final_path);
-	define('EXTENSION', strtolower($expl[count($expl)-1]));
+if(IXG_KV_URL_CACHE && $url_cache = $keyval->get("url_cache:$url_id")) {
+	
+	$url_cache = unserialize($url_cache);
+	var_dump($url_cache);
+	
+	$site = $url_cache["site"];
+	$final_path = $url_cache["final_path"];
+	$path = $url_cache["actual_file"];
+	$split_domain = $url_cache["split_domain"];
+	define("EXTENSION", $url_cache["extension"]);
+	define("TRAILING_SLASH", $url_cache["trailing_slash"]);
+	define('REQUESTED_FILE', $url_cache["requested_file"]);
+	
+} else {
+	
+	// Get the domain
+	$split_domain = explode('.', $domain);
+	$split_domain = array_reverse($split_domain);
+	$minlen = 2;
+	do {
+		$minlen++;
+		$tld = array_shift($split_domain);
+		$split_domain[0] .= '.' . $tld;
+		if($minlen > 3)
+			$minlen--;
+	} while (strlen($split_domain[0]) <= $minlen);
+	unset($minlen);
+	
+	// Get the path and file
+	if(strpos($path, '?') !== false)
+		$path = substr($path, 0, strpos($path, '?'));
+	define("TRAILING_SLASH", substr($path, -1) == '/');
+	
+	$path = explode('/', $path);
+	$new_path = array();
+	foreach($path as $p) {
+		if($p == '..')
+			die('Invalid path.');
+		elseif(empty($p) || $p == '.')
+			continue;
+		$new_path[] = $p;
+	}
+	$path = $new_path;
+	unset($new_path);
+	
+	$final_path = urldecode($path[count($path) - 1]);
+	if(strpos($final_path, '.') !== false) {
+		$expl = explode('.', $final_path);
+		define('EXTENSION', strtolower($expl[count($expl)-1]));
+	} else
+		define('EXTENSION', '');
+	
+	// We'll depopulate this in the parser.
+	$actual_file = $path;
+	
+	$site = interchange::parse('index.json');
+	
+	define('REQUESTED_FILE', implode('/', $actual_file));
+	
+	if(IXG_KV_URL_CACHE)
+		$keyval->set($url_id, serialize(array(
+			//"actual_file"=>$path,
+			"final_path"=>$final_path,
+			"extension"=>EXTENSION,
+			"trailing_slash"=>TRAILING_SLASH,
+			"requested_file"=>REQUESTED_FILE
+		)));
+	
 }
-
-// We'll depopulate this in the parser.
-$actual_file = $path;
 
 define('PROTOCOL', $protocol);
 define('DOMAIN', $domain);
-define('REQUESTED_FILE', $file);
 define('FILENAME', $final_path);
-$url = $protocol . '://' . $domain . '/' . $file;
 define('URL', $url);
