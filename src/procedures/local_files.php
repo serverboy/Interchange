@@ -21,6 +21,7 @@ limitations under the License.
 */
 
 function loadScriptFile($file) {
+	global $keyval, $path;
 	$session = new session_manager();
 	require($file);
 }
@@ -141,6 +142,13 @@ function loadLocalFile($file, $extension = '') {
 	
 }
 
+function serve_favicon() {
+	if(!SERVE_DEFAULT_FAVICON)
+		return false;
+	loadLocalFile("pages/favicon.ico", "ico");
+	return true;
+}
+
 function doload($dir) {
 	if(file_exists($dir)) {
 		if(is_file($dir)) {
@@ -171,5 +179,7 @@ function doload($dir) {
 			}
 		}
 	}
+	if(REQUESTED_FILE == "favicon.ico")
+		return serve_favicon();
 	return false;
 }

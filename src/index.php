@@ -19,14 +19,15 @@ limitations under the License.
 
 */
 
-header('Date: ' . gmdate('D, d M Y H:i:s', time()) . ' GMT');
-header('X-Powered-By: Interchange');
+require("./constants.php");
+
+if(HAPPY_HEADERS) {
+	header('Date: ' . gmdate('D, d M Y H:i:s', time()) . ' GMT');
+	header('X-Powered-By: Interchange');
+}
 
 $location = dirname(__FILE__);
 define('IXG_PATH_PREFIX', $location . (strlen($location) > 1 ? '/' : ''));
-
-if(file_exists("./constants.php"))
-	require("./constants.php");
 
 require("helpers/keyval.php");
 

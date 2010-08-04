@@ -20,31 +20,37 @@ limitations under the License.
 
 */
 
-$ixg_viewstack = array();
-$ixg_viewvalues = array();
 class view_manager {
 	
-	public static function setvalue($name, $value) {
-		global $ixg_viewvalues;
-		$ixg_viewvalues[$name] = $value;
+	public static $stack = array();
+	public static $values = array();
+	
+	public static function set_value($name, $value) {
+		self::$values[$name] = $value;
 	}
-	public static function getvalue($name) {
-		global $ixg_viewvalues;
-		if(isset($ixg_viewvalues[$name]))
-			return $ixg_viewvalues[$name];
+	public static function get_value($name) {
+		if(isset(self::$values[$name]))
+			return self::$values[$name];
 		return '';
 	}
-	public static function addview($name) {
-		global $ixg_viewstack;
-		$ixg_viewstack[] = $name;
+	public static function add_view($name) {
+		self::$stack[] = $name;
 	}
 	public static function render() {
-		global $ixg_viewstack, $path, $session;
-		$file = array_shift($ixg_viewstack);
+		global $path, $session, $keyval; // For use in the views
+		$file = array_shift(self::$stack);
 		if(empty($file)) return '';
 		ob_start();
 		require('./views/' . $file . '.php');
 		return ob_get_clean();
 	}
+	public static function render_as_value($name) {
+		self::$values[$name] = self::render();
+	}
+	public static function render_and_pipe($through) {
+		$output = self::render();
+		return pipe::through($data, $through);
+	}
+	public static function dump() {self::$stack = array();}
 	
 }

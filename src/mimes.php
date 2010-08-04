@@ -7,6 +7,7 @@ $mimes = array(
 	'asx' => 'video/x-ms-asf',
 	'avi' => 'video/x-msvideo',
 	'gif' => 'image/gif',
+	'ico' => 'image/x-icon',
 	'jpg' => 'image/jpeg',
 	'jpeg' => 'image/jpeg',
 	'png' => 'image/png',
