@@ -20,13 +20,19 @@ limitations under the License.
 
 */
 
-function loadScriptFile($file) {
+function load_page($page, $http_code=200) {
+	require_once(IXG_PATH_PREFIX . 'http_codes.php');
+	header($error_codes[$http_code]);
+	readfile('./pages/fail.php');
+}
+
+function load_script_file($file) {
 	global $keyval, $path;
 	$session = new session_manager();
 	require($file);
 }
 
-function loadLocalFile($file, $extension = '') {
+function load_local_file($file, $extension = '', $may_execute=true) {
 	
 	if(!file_exists($file) || !is_file($file)) {
 		header('HTTP/1.0 404 Not Found');
@@ -34,8 +40,12 @@ function loadLocalFile($file, $extension = '') {
 		return;
 	}
 	
-	if(strtoupper($extension) == 'PHP')
-		return loadScriptFile($file);
+	if(strtoupper($extension) == 'PHP') {
+		if($may_execute)
+			return load_script_file($file);
+		else
+			return load_page("405.php", 405);
+	}
 	
 	require('mimes.php');
 	if(isset($mimes[$extension]))
@@ -145,14 +155,14 @@ function loadLocalFile($file, $extension = '') {
 function serve_favicon() {
 	if(!SERVE_DEFAULT_FAVICON)
 		return false;
-	loadLocalFile("pages/favicon.ico", "ico");
+	load_local_file("pages/favicon.ico", "ico");
 	return true;
 }
 
-function doload($dir) {
+function doload($dir, $allow_directory=true, $may_execute=true) {
 	if(file_exists($dir)) {
 		if(is_file($dir)) {
-			loadLocalFile($dir, EXTENSION);
+			load_local_file($dir, EXTENSION, $may_execute);
 			return true;
 		} elseif(is_dir($dir) && !TRAILING_SLASH && REDIRECT_TRAILING_SLASH) {
 			if($_SERVER['REQUEST_METHOD'] == "POST") {
@@ -161,7 +171,7 @@ function doload($dir) {
 			} else
 				header('Location: ' . URL . '/');
 			return true;
-		} elseif(is_dir($dir) && (TRAILING_SLASH || FILENAME == '' || HANDLE_TRAILING_SLASH)) {
+		} elseif($allow_directory && is_dir($dir) && (TRAILING_SLASH || FILENAME == '' || HANDLE_TRAILING_SLASH)) {
 			require("defaults.php");
 			
 			foreach($defaults as $default=>$execute) {
@@ -170,10 +180,10 @@ function doload($dir) {
 				$extension = $extension[1];
 				
 				if(file_exists("$dir/$default")) {
-					if($execute)
-						loadScriptFile("$dir/$default");
+					if($execute && $may_execute)
+						load_script_file("$dir/$default");
 					else
-						loadLocalFile("$dir/$default", $extension);
+						load_local_file("$dir/$default", $extension);
 					return true;
 				}
 			}

@@ -54,6 +54,8 @@ if(IXG_KV_URL_CACHE && $url_cache = $keyval->get("url_cache:$url_id")) {
 	define("EXTENSION", $url_cache["extension"]);
 	define("TRAILING_SLASH", $url_cache["trailing_slash"]);
 	define('REQUESTED_FILE', $url_cache["requested_file"]);
+	if($url_cache["methodical"])
+		define("METHODICAL", true);
 	
 } else {
 	
@@ -107,7 +109,8 @@ if(IXG_KV_URL_CACHE && $url_cache = $keyval->get("url_cache:$url_id")) {
 			"final_path"=>$final_path,
 			"extension"=>EXTENSION,
 			"trailing_slash"=>TRAILING_SLASH,
-			"requested_file"=>REQUESTED_FILE
+			"requested_file"=>REQUESTED_FILE,
+			"methodical"=>defined("METHODICAL")
 		)));
 	
 }

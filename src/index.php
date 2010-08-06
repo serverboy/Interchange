@@ -71,14 +71,75 @@ if ( $site === false ) {
 	require('procedures/libraries.php');
 	require('pipes.php'); // Must be loaded after libraries.
 	
-	if(is_file(PATH_PREFIX . '/endpoint.php')) {
-		loadScriptFile(PATH_PREFIX . '/endpoint.php');
+	if(defined("METHODICAL")) {
+		$method_level = 0;
+		$path_name = '';
+		$path_len = count($path);
+		$method_base = null;
+		$mathod_name = '';
+		$method_arguments = array();
+		for($i=0;$i<$path_len;$i++) {
+			$pathlet = array_shift($path);
+			$possible_match = PATH_PREFIX . "$path_name/$pathlet";
+			switch($method_level) {
+				case 0: // Seek Files
+					if(is_file($possible_match) && substr($pathlet, -4) != ".php") {
+						if(doload($possible_match, false)) {
+							break 2;
+						}
+					} elseif(is_dir($possible_match)) {
+						$path_name .= "/$pathlet";
+						continue;
+					} elseif(is_file($possible_match . ".methods.php")) {
+						require("procedures/methodical_requirements.php");
+						try {
+							require($possible_match . ".methods.php");
+							$method_base = new methods();
+						} catch(Exception $e) {
+							break 2;
+						} finally {
+							$method_level++;
+							break;
+						}
+						break 2;
+					}
+					$i = $path_len - 1;
+					break 2;
+				case 1: // Seek Functions
+					if(substr($pathlet, 0, 2) == "__")
+						break 2;
+					if(method_exists($method_base, $pathlet)) {
+						$method_name = $pathlet;
+						$method_level++;
+						continue;
+					}
+					break 2;
+				case 2: // Seek Arguments
+					$method_arguments[] = $pathlet;
+			}
+		}
+		
+		# TODO : This might not fire if the error occurs on the last item;
+		if($method_level < 2)
+			load_page("404.php", 404);
+		else {
+			$result = call_user_func_array(
+				array(
+					$method_base,
+					$method_name
+				), $method_arguments
+			);
+			// This should have Django-like output (HttpResponse, etc.)
+			echo $result;
+		}
+		
+	} elseif(is_file(PATH_PREFIX . '/endpoint.php')) {
+		load_script_file(PATH_PREFIX . '/endpoint.php');
 	} else {
-		ini_set("include_path", ini_get("include_path") . ':' . PATH_PREFIX);
+		ini_set("include_path", PATH_PREFIX . ':' . ini_get("include_path"));
 		
 		if(!doload(PATH_PREFIX . '/' . REQUESTED_FILE)) {
-			header('HTTP/1.1 404 Not Found');
-			readfile('./pages/fail.php');
+			load_page("404.php", 404);
 		}
 	}
 }

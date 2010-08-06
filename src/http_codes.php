@@ -31,6 +31,7 @@ $redirect_codes = array(
 );
 
 $error_codes = array(
+	200 => '200 OK', // For ease of integration.
 	400 => '400 Bad Request',
 	401 => '401 Unauthorized',
 	// 402 may not be used due to its reserved status

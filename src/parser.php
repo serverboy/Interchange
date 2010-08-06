@@ -91,6 +91,9 @@ class interchange {
 					if(isset($child->streaming))
 						define("STREAMING", $child->streaming);
 					return $child->endpoint;
+				case 'methods':
+					define("METHODICAL", true);
+					return $child->endpoint;
 				case 'redirect':
 					$href = $child->href;
 					
