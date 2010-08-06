@@ -51,9 +51,9 @@ if(defined('EXTENSION'))
 define('FULLPATH', implode('/', $directories));
 */
 
-if ( $site === false ) {
-	header('HTTP/1.1 404 Not Found');
-	readfile('pages/fail.php');
+require('procedures/local_files.php');
+if($site === false) {
+	load_page("404.php", 404);
 } else {
 	
 	define('PATH_PREFIX', IXG_PATH_PREFIX . 'endpoints/' . $site);
@@ -67,7 +67,6 @@ if ( $site === false ) {
 	require('sessionmanager.php');
 	require('views.php');
 	require('logging.php');
-	require('procedures/local_files.php');
 	require('procedures/libraries.php');
 	require('pipes.php'); // Must be loaded after libraries.
 	
