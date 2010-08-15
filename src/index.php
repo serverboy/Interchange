@@ -53,7 +53,11 @@ define('FULLPATH', implode('/', $directories));
 
 require('procedures/local_files.php');
 if($site === false) {
-	load_page("404.php", 404);
+    $fulfilled = false;
+    if(REQUESTED_FILE == "favicon.ico")
+        $fulfilled = serve_favicon();
+    if(!$fulfilled)
+        load_page("404.php", 404);
 } else {
 	
 	define('PATH_PREFIX', IXG_PATH_PREFIX . 'endpoints/' . $site);
@@ -94,11 +98,9 @@ if($site === false) {
 						try {
 							require($possible_match . ".methods.php");
 							$method_base = new methods();
+							$method_level++;
 						} catch(Exception $e) {
 							break 2;
-						} finally {
-							$method_level++;
-							break;
 						}
 						break 2;
 					}

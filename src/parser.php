@@ -67,7 +67,7 @@ class interchange {
 		if(!empty($path[$folder_level]) && $folder == '_wildcard') {
 			$varname = $node->variable;
 			$wildcards[$varname] = $path[$folder_level];
-		} elseif($path[$folder_level] != (string)$folder)
+		} elseif(!isset($path[$folder_level]) || $path[$folder_level] != (string)$folder)
 			return false;
 		
 		// Shift the path up a directory.

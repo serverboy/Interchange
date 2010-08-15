@@ -131,12 +131,10 @@ function load_local_file($file, $extension = '', $may_execute=true) {
 		}
 	}
 	
-	if($cache_for == 0) {
-		header("Expires: Tue, 01 Dec 2037 16:00:00 GMT");
-		$cache_for = 31536000;
-	} else {
-		header('Expires: ' . gmdate('D, d M Y H:i:s', (int)$_SERVER["REQUEST_TIME"] + $cache_for) . ' GMT');
-	}
+	#header('Expires: ' . gmdate('D, d M Y H:i:s', (int)$_SERVER["REQUEST_TIME"] + $cache_for) . ' GMT');
+    header("Expires: Tue, 01 Dec 2037 16:00:00 GMT");
+    $cache_for = 31536000;
+    
 	header("Cache-Control: public, max-age=$cache_for");
 	
 	header('Age: ' . (((int)$_SERVER["REQUEST_TIME"] - $last_modified) % $cache_for));

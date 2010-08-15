@@ -31,12 +31,14 @@ class memcached_driver {
 		elseif(class_exists("Memcache") && IXG_MEMCACHED_TYPE == "MEMCACHE")
 			$this->mc_type = 2;
 		*/
-		if(IXG_MEMCACHED_TYPE=='MEMCACHED') {
-			$this->mc = new Memcached();
-			$this->mc->addServer(IXG_MEMCACHED, IXG_MEMCACHED_PORT) or die('Cannot connect to memcache');
-		} elseif(IXG_MEMCACHED_TYPE=='MEMCACHED') {
-			$this->mc = new Memcache();
-			$this->mc->connect(IXG_MEMCACHED, IXG_MEMCACHED_PORT) or die('Cannot connect to memcache');
+		switch(IXG_MEMCACHED_TYPE) {
+			case 'MEMCACHED':
+				$this->mc = new Memcached();
+				$this->mc->addServer(IXG_MEMCACHED, IXG_MEMCACHED_PORT) or die('Cannot connect to memcache');
+				break;
+			default:
+				$this->mc = new Memcache();
+				$this->mc->connect(IXG_MEMCACHED, IXG_MEMCACHED_PORT) or die('Cannot connect to memcache');
 		}
 	}
 	public function destroy($id) {

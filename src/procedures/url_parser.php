@@ -38,7 +38,7 @@ $domain = $_SERVER['SERVER_NAME'];
 $path = $_SERVER['REQUEST_URI'];
 
 $url = "$protocol://$domain/$path";
-if($IXG_KV_URL_CACHE)
+if(IXG_KV_URL_CACHE)
 	$url_id = SUPER_SECRET . ':' . sha1($url);
 //$keyval->destroy($url_id);
 
@@ -89,7 +89,11 @@ if(IXG_KV_URL_CACHE && $url_cache = $keyval->get("url_cache:$url_id")) {
 	$path = $new_path;
 	unset($new_path);
 	
-	$final_path = urldecode($path[count($path) - 1]);
+	if($path_count = count($path)) {
+		$final_path = urldecode($path[$path_count - 1]);
+		unset($path_count);
+	} else
+		$final_path = '';
 	if(strpos($final_path, '.') !== false) {
 		$expl = explode('.', $final_path);
 		define('EXTENSION', strtolower($expl[count($expl)-1]));
