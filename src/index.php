@@ -57,7 +57,7 @@ if($site === false) {
     if(REQUESTED_FILE == "favicon.ico")
         $fulfilled = serve_favicon();
     if(!$fulfilled)
-        load_page("404.php", 404);
+        load_page("404", 404);
 } else {
 	
 	define('PATH_PREFIX', IXG_PATH_PREFIX . 'endpoints/' . $site);

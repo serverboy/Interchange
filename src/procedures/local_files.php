@@ -23,7 +23,7 @@ limitations under the License.
 function load_page($page, $http_code=200) {
 	require_once(IXG_PATH_PREFIX . 'http_codes.php');
 	header($error_codes[$http_code]);
-	readfile('./pages/fail.php');
+	readfile("./pages/$page.php");
 }
 
 function load_script_file($file) {
@@ -35,16 +35,14 @@ function load_script_file($file) {
 function load_local_file($file, $extension = '', $may_execute=true) {
 	
 	if(!file_exists($file) || !is_file($file)) {
-		header('HTTP/1.0 404 Not Found');
-		readfile('pages/fail.php');
-		return;
+		return load_page("404", 405);
 	}
 	
 	if(strtoupper($extension) == 'PHP') {
 		if($may_execute)
 			return load_script_file($file);
 		else
-			return load_page("405.php", 405);
+			return load_page("405", 405);
 	}
 	
 	require('mimes.php');
