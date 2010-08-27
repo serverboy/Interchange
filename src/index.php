@@ -122,7 +122,7 @@ if($site === false) {
 		
 		# TODO : This might not fire if the error occurs on the last item;
 		if($method_level < 2)
-			load_page("404.php", 404);
+			load_page("404", 404);
 		else {
 			$result = call_user_func_array(
 				array(
@@ -140,7 +140,7 @@ if($site === false) {
 		ini_set("include_path", PATH_PREFIX . ':' . ini_get("include_path"));
 		
 		if(!doload(PATH_PREFIX . '/' . REQUESTED_FILE)) {
-			load_page("404.php", 404);
+			load_page("404", 404);
 		}
 	}
 }

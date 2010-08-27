@@ -162,8 +162,7 @@ function doload($dir, $allow_directory=true, $may_execute=true) {
 			return true;
 		} elseif(is_dir($dir) && !TRAILING_SLASH && REDIRECT_TRAILING_SLASH) {
 			if($_SERVER['REQUEST_METHOD'] == "POST") {
-				header('HTTP/1.1 503 Service Unavailable');
-				readfile('./pages/fail.php');
+				load_page("404", 503);
 			} else
 				header('Location: ' . URL . '/');
 			return true;
