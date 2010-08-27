@@ -34,7 +34,7 @@ switch($port) {
 		break;
 }
 
-$domain = $_SERVER['SERVER_NAME'];
+$domain = $_SERVER['HTTP_HOST'];
 $path = $_SERVER['REQUEST_URI'];
 
 $url = "$protocol://$domain/$path";
