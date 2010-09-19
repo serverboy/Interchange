@@ -44,10 +44,14 @@ class memcached_driver {
 	public function destroy($id) {
 		$this->mc->delete($id);
 	}
-	public function set($name, $data) {
-		$this->mc->set($name, $data);
+	public function set($name, $data, $expiration = 0) {
+		$this->mc->set($name, $data, 0, $expiration);
 	}
 	public function get($name) {
 		return $this->mc->get($name);
 	}
+	public function increment($name) {
+		return $this->mc->increment($name);
+	}
+	public function end() {$this->mc->close();}
 }

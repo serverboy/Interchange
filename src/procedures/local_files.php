@@ -29,6 +29,7 @@ function load_page($page, $http_code=200) {
 function load_script_file($file) {
 	global $keyval, $path;
 	$session = new session_manager();
+	
 	require($file);
 }
 

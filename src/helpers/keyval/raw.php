@@ -33,7 +33,7 @@ class raw_driver {
 		unset($this->data[$id]);
 		$this->flush();
 	}
-	public function set($name, $data) {
+	public function set($name, $data, $expiration = 0) {
 		$this->data[$name] = $data;
 		$this->flush();
 	}
@@ -43,4 +43,5 @@ class raw_driver {
 		return $this->data[$name];
 	}
 	private function flush() {file_put_contents(IXG_RAW, json_encode($this->data));}
+	public function end() {$this->flush();}
 }

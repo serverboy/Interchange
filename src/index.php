@@ -81,32 +81,68 @@ if($site === false) {
 		$method_base = null;
 		$mathod_name = '';
 		$method_arguments = array();
+		
+		// Loop through each of the path segments
 		for($i=0;$i<$path_len;$i++) {
 			$pathlet = array_shift($path);
+			
+			// Let's assume that the user is referring to the file:
+			// /endpoints/endpoint_name/path/so/far/whatever_this_segment_is
 			$possible_match = PATH_PREFIX . "$path_name/$pathlet";
+			
 			switch($method_level) {
 				case 0: // Seek Files
+					
+					// If it's a file (without a PHP extension), load it like a static endpoint
 					if(is_file($possible_match) && substr($pathlet, -4) != ".php") {
-						if(doload($possible_match, false)) {
-							break 2;
-						}
+						// If it can be loaded, we're done. Make sure we don't load it as a
+						// directory.
+						// This should match the code to load a static file in
+						// /procedures/local_files.php
+						load_local_file($possible_match, EXTENSION, false);
+						exit; // We're done, so break
+					
+					// If it's a directory, we're looking for a class within it. Append the
+					// search path with the current segment and continue searching.
 					} elseif(is_dir($possible_match)) {
 						$path_name .= "/$pathlet";
 						continue;
+					
+					// If it's a file (ending in .methods.php), start the proverbial car because
+					// we're probably going to wind up with a methodical endpoint.
 					} elseif(is_file($possible_match . ".methods.php")) {
+						// Load in the stuff methodical endpoints use.
 						require("procedures/methodical_requirements.php");
+						
+						// If something gets fried, don't stop the world.
 						try {
+							// Load up the PHP file that contains the methods. Note that we
+							// can just do this because the URL parser sanitizes everything
+							// for us.
 							require($possible_match . ".methods.php");
-							$method_base = new methods();
-							$method_level++;
+							
+							// If the file implements full methodical functionality, proceed
+							// with the methodical flow. Otherwise, just exit.
+							if(class_exists('methods')) {
+								// The methods file should implement the class "methods" based on
+								// the abstract class "methods_base"
+								$method_base = new methods();
+								$method_level++;
+							} else {
+								// The PHP file was loaded, but there was no methodical
+								// code, so we assume it ran successfully.
+								exit;
+							}
 						} catch(Exception $e) {
 							break 2;
 						}
 						break 2;
 					}
-					$i = $path_len - 1;
+					
+					// Nothing was found that applies.
 					break 2;
 				case 1: // Seek Functions
+					// Disallow access to magic functions
 					if(substr($pathlet, 0, 2) == "__")
 						break 2;
 					if(method_exists($method_base, $pathlet)) {
@@ -116,14 +152,24 @@ if($site === false) {
 					}
 					break 2;
 				case 2: // Seek Arguments
+					// Any further arguments after a method has already been chosen
+					// are used as arguments to the method.
 					$method_arguments[] = $pathlet;
 			}
 		}
 		
+		// If the methods class implements a default method, call that and don't fail.
+		if($method_level == 1 && method_exists($method_base, '__default')) {
+			$method_name = '__default';
+			$method_level++;
+		}
+		
 		# TODO : This might not fire if the error occurs on the last item;
+		// Throw a 404 if the URL doesn't specify a class and method
 		if($method_level < 2)
 			load_page("404", 404);
 		else {
+			// Otherwise, call the method in the class
 			$result = call_user_func_array(
 				array(
 					$method_base,
@@ -131,7 +177,7 @@ if($site === false) {
 				), $method_arguments
 			);
 			// This should have Django-like output (HttpResponse, etc.)
-			echo $result;
+			$result->output();
 		}
 		
 	} elseif(is_file(PATH_PREFIX . '/endpoint.php')) {

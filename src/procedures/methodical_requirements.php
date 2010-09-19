@@ -20,7 +20,7 @@ limitations under the License.
 
 */
 
-class methods_base {
+abstract class methods_base {
 	public static $session;
 	public static $path;
 	public static $keyval;

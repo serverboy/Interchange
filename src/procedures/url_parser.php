@@ -37,17 +37,18 @@ switch($port) {
 $domain = $_SERVER['HTTP_HOST'];
 $path = $_SERVER['REQUEST_URI'];
 
-$url = "$protocol://$domain/$path";
+$url = "$protocol://$domain$path";
 if(IXG_KV_URL_CACHE)
-	$url_id = SUPER_SECRET . ':' . sha1($url);
+	$url_id = "urlcache:" . SUPER_SECRET . ':' . sha1($url);
 //$keyval->destroy($url_id);
 
-if(IXG_KV_URL_CACHE && $url_cache = $keyval->get("url_cache:$url_id")) {
+if(IXG_KV_URL_CACHE && $url_cache = $keyval->get($url_id)) {
 	
 	$url_cache = unserialize($url_cache);
-	var_dump($url_cache);
+	//var_dump($url_cache);
 	
 	$site = $url_cache["site"];
+	$libraries = $url_cache["libraries"];
 	$final_path = $url_cache["final_path"];
 	$path = $url_cache["actual_file"];
 	$split_domain = $url_cache["split_domain"];
@@ -109,12 +110,14 @@ if(IXG_KV_URL_CACHE && $url_cache = $keyval->get("url_cache:$url_id")) {
 	
 	if(IXG_KV_URL_CACHE)
 		$keyval->set($url_id, serialize(array(
-			//"actual_file"=>$path,
+			"actual_file"=>$path,
 			"final_path"=>$final_path,
 			"extension"=>EXTENSION,
 			"trailing_slash"=>TRAILING_SLASH,
 			"requested_file"=>REQUESTED_FILE,
-			"methodical"=>defined("METHODICAL")
+			"methodical"=>defined("METHODICAL"),
+			"site"=>$site,
+			"libraries"=>empty($libraries)?array():$libraries
 		)));
 	
 }
