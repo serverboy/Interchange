@@ -104,13 +104,15 @@ if(IXG_KV_URL_CACHE && $url_cache = $keyval->get($url_id)) {
 	// We'll depopulate this in the parser.
 	$actual_file = $path;
 	
+	# TODO: Make the parser suck less with all these extra variables.
 	$site = interchange::parse('index.json');
+	$path = $actual_file;
 	
 	define('REQUESTED_FILE', implode('/', $actual_file));
 	
 	if(IXG_KV_URL_CACHE)
 		$keyval->set($url_id, serialize(array(
-			"actual_file"=>$path,
+			"actual_file"=>$actual_file,
 			"final_path"=>$final_path,
 			"extension"=>EXTENSION,
 			"trailing_slash"=>TRAILING_SLASH,
