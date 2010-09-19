@@ -44,6 +44,9 @@ class view_manager {
 		require('./views/' . $file . '.php');
 		return ob_get_clean();
 	}
+	public static function render_as_httpresponse() {
+		return new HttpResponse(self::render());
+	}
 	public static function render_as_value($name) {
 		self::$values[$name] = self::render();
 	}
