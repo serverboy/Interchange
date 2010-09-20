@@ -40,7 +40,6 @@ $path = $_SERVER['REQUEST_URI'];
 $url = "$protocol://$domain$path";
 if(IXG_KV_URL_CACHE)
 	$url_id = "urlcache:" . SUPER_SECRET . ':' . sha1($url);
-//$keyval->destroy($url_id);
 
 if(IXG_KV_URL_CACHE && $url_cache = $keyval->get($url_id)) {
 	

@@ -49,7 +49,7 @@ class interchange {
 			$wildcards[$varname] = $split_domain[$level];
 		// If this domain/subdomain object doesn't match the current URL, then we
 		// don't have any more instructions
-		} elseif ($split_domain[$level] != $domain)
+		} elseif(empty($split_domain[$level]) || $split_domain[$level] != $domain)
 			return false;
 		
 		$output = self::traverse($node->policies, $level + 1);

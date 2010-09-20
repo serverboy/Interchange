@@ -75,6 +75,7 @@ if($site === false) {
 	require('pipes.php'); // Must be loaded after libraries.
 	
 	if(defined("METHODICAL")) {
+		
 		$method_level = 0;
 		$path_name = '';
 		$path_len = count($path);
@@ -107,6 +108,7 @@ if($site === false) {
 					// code, so we assume it ran successfully.
 					exit;
 				}
+				
 			} catch(Exception $e) {
 				return false;
 			}
@@ -120,7 +122,7 @@ if($site === false) {
 				
 				// Let's assume that the user is referring to the file:
 				// /endpoints/endpoint_name/path/so/far/whatever_this_segment_is
-				$possible_match = PATH_PREFIX . "/$path_name/$pathlet";
+				$possible_match = PATH_PREFIX . "$path_name/$pathlet";
 				
 				switch($method_level) {
 					case 0: // Seek Files
@@ -137,15 +139,15 @@ if($site === false) {
 						// If it's a directory, we're looking for a class within it. Append the
 						// search path with the current segment and continue searching.
 						} elseif(is_dir($possible_match)) {
-							$path_name .= "/$pathlet";
-							continue;
+							$path_name .= "$pathlet/";
+							break;
 						
 						// If it's a file (ending in .methods.php), start the proverbial car because
 						// we're probably going to wind up with a methodical endpoint.
 						} elseif(is_file($possible_match . ".methods.php") && $pathlet != "__default") {
 							
 							if(load_methodfile($possible_match . ".methods.php"))
-								continue;
+								break;
 							
 							break 2;
 						}
@@ -170,10 +172,11 @@ if($site === false) {
 			}
 		}
 		
-		if(is_file(PATH_PREFIX . "/$path_name/__default.methods.php")) {
-			if(!load_methodfile(PATH_PREFIX . "/$path_name/__default.methods.php")) {
+		if($method_level == 0 && is_file(PATH_PREFIX . "$path_name/__default.methods.php")) {
+			if(!load_methodfile(PATH_PREFIX . "$path_name/__default.methods.php"))
 				exit;
-			}
+			else
+				$method_level++;
 		}
 		
 		// If the methods class implements a default method, call that and don't fail.
@@ -194,8 +197,10 @@ if($site === false) {
 					$method_name
 				), $method_arguments
 			);
-			// This should have Django-like output (HttpResponse, etc.)
-			$result->output();
+			if($result !== false) {
+				// This should have Django-like output (HttpResponse, etc.)
+				$result->output();
+			}
 		}
 		
 	} elseif(is_file(PATH_PREFIX . '/endpoint.php')) {
