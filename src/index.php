@@ -175,8 +175,6 @@ if($site === false) {
 		if($method_level == 0 && is_file(PATH_PREFIX . "$path_name/__default.methods.php")) {
 			if(!load_methodfile(PATH_PREFIX . "$path_name/__default.methods.php"))
 				exit;
-			else
-				$method_level++;
 		}
 		
 		// If the methods class implements a default method, call that and don't fail.
