@@ -40,6 +40,9 @@ class view_manager {
 		global $path, $session, $keyval; // For use in the views
 		$file = array_shift(self::$stack);
 		if(empty($file)) return '';
+		if(!is_file('./views/' . $file . '.php')) {
+			return "View '$file' could not be found.";
+		}
 		ob_start();
 		require('./views/' . $file . '.php');
 		return ob_get_clean();
