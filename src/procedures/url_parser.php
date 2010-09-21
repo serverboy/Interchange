@@ -39,7 +39,7 @@ $path = $_SERVER['REQUEST_URI'];
 
 $url = "$protocol://$domain$path";
 if(IXG_KV_URL_CACHE)
-	$url_id = "urlcache:" . SUPER_SECRET . ':' . sha1($url);
+	$url_id = "urlcache:" . filemtime('index.json') . SUPER_SECRET . ':' . sha1($url);
 
 if(IXG_KV_URL_CACHE && $url_cache = $keyval->get($url_id)) {
 	
