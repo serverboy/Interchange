@@ -71,7 +71,6 @@ if($site === false) {
 	require('sessionmanager.php');
 	$session = new session_manager();
 	require('views.php');
-	require('logging.php');
 	require('procedures/libraries.php');
 	require('pipes.php'); // Must be loaded after libraries.
 	
