@@ -69,6 +69,7 @@ if($site === false) {
 			unset($$i);
 	
 	require('sessionmanager.php');
+	$session = new session_manager();
 	require('views.php');
 	require('logging.php');
 	require('procedures/libraries.php');

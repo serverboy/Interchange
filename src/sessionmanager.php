@@ -41,7 +41,7 @@ class session_manager {
 				$hash = sha1($ip . $session . SECRET);
 				if($hash == $token) {
 					$has_session = true;
-					$keyval->session_id = $session;
+					$this->session_id = $session;
 				}
 				
 			}
@@ -50,7 +50,7 @@ class session_manager {
 				$session = uniqid();
 				$token = sha1($ip . $session . SECRET);
 				
-				$keyval->session_id = $session;
+				$this->session_id = $session;
 				
 				setcookie('ixg_session', $session, (int)$_SERVER["REQUEST_TIME"] + IXG_KV_SESSIONS_TIMEOUT, '/');
 				setcookie('ixg_token', $token, (int)$_SERVER["REQUEST_TIME"] + IXG_KV_SESSIONS_TIMEOUT, '/');
