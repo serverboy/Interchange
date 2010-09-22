@@ -87,13 +87,12 @@ class interchange {
 		foreach($node as $child) {
 			$type = $child->type;
 			switch($type) {
-				case 'app':
-					if(isset($child->streaming))
-						define("STREAMING", $child->streaming);
-					return $child->endpoint;
+				
 				case 'methods':
 					define("METHODICAL", true);
+				case 'app':
 					return $child->endpoint;
+					
 				case 'redirect':
 					$href = $child->href;
 					

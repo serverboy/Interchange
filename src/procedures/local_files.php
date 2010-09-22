@@ -52,39 +52,39 @@ function load_local_file($file, $extension = '', $may_execute=true) {
 		header('Content-type: application/octet-stream');
 	
 	$filesize = filesize($file);
-	header('Content-length: ' . $filesize);
 	if(defined('STREAMING'))
 		header('Accept-Ranges: bytes');
 	
-	if(defined("STREAMING") && (isset($_SERVER['HTTP_RANGE']) || isset($_REQUEST['start']) || isset($_REQUEST['end']))) {
-		if(isset($_SERVER['HTTP_RANGE'])) {
-			if (!preg_match('/^bytes=\d*-\d*(,\d*-\d*)*$/', $_SERVER['HTTP_RANGE'])) {
-				header('HTTP/1.1 416 Requested Range Not Satisfiable');
-				header('Content-Range: bytes */' . $filesize); // Required in 416.
-				return;
-			}
-			
-			// TODO : Handle multiple range requests
-			
-			$range = $_SERVER['HTTP_RANGE'];
-			$range = substr($range, 6); // Skip "bytes "
-			
-			$range = explode('-',$range);
-			if(($start = (int)$range[0])<=0)
-				$start = 0;
-			if(!isset($range[1]) || ($end = (int)$range[1])<=0)
-				$end = $filesize;
-			
-		} else {
-			$start = 0;
-			$end = $filesize;
-			
-			if(isset($_REQUEST['start']))
-				$start = (int)$_REQUEST['start'];
-			if(isset($_REQUEST['end']))
-				$end = (int)$_REQUEST['end'];
-			
+	$last_modified = filemtime($file);
+	if(isset($_SERVER["HTTP_IF_MODIFIED_SINCE"])) {
+		$expected_modified = strtotime(preg_replace('/;.*$/','',$_SERVER["HTTP_IF_MODIFIED_SINCE"]));
+		if($last_modified <= $expected_modified) {
+			header("HTTP/1.0 304 Not Modified");
+			return;
 		}
+	}
+    header("Expires: Tue, 01 Dec 2037 16:00:00 GMT");
+    $cache_for = 31536000;
+	header('Age: ' . (((int)$_SERVER["REQUEST_TIME"] - $last_modified) % $cache_for));
+	header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $last_modified) . ' GMT');
+	
+	if(isset($_SERVER['HTTP_RANGE'])) {
+		if (!preg_match('/^bytes=\d*-\d*(,\d*-\d*)*$/', $_SERVER['HTTP_RANGE'])) {
+			header('HTTP/1.1 416 Requested Range Not Satisfiable');
+			header('Content-Range: bytes */' . $filesize); // Required in 416.
+			return;
+		}
+		
+		// TODO : Handle multiple range requests
+		
+		$range = $_SERVER['HTTP_RANGE'];
+		$range = substr($range, 6); // Skip "bytes "
+		
+		$range = explode('-',$range);
+		if(($start = (int)$range[0])<=0)
+			$start = 0;
+		if(!isset($range[1]) || ($end = (int)$range[1])<=0)
+			$end = $filesize;
 		
 		header('HTTP/1.0 206 Partial Content');
 		header('Pragma: public');
@@ -97,14 +97,6 @@ function load_local_file($file, $extension = '', $may_execute=true) {
 			return;
 		
 		$length = $end - $start;
-		
-		if($start > 0 && defined('EXTENSION') && EXTENSION == 'flv') {
-			echo 'FLV',
-				pack('C', 1),
-				pack('C', 1),
-				pack('N', 9),
-				pack('N', 9);
-		}
 		
 		$fh = fopen($file, 'rb');
 		fseek($fh, $start);
@@ -120,26 +112,10 @@ function load_local_file($file, $extension = '', $may_execute=true) {
 		
 	}
 	
-	$last_modified = filemtime($file);
-	if(isset($_SERVER["HTTP_IF_MODIFIED_SINCE"])) {
-		$expected_modified = strtotime(preg_replace('/;.*$/','',$_SERVER["HTTP_IF_MODIFIED_SINCE"]));
-		if($last_modified <= $expected_modified) {
-			header("HTTP/1.0 304 Not Modified");
-			return;
-		}
-	}
+	header('Content-length: ' . $filesize);
 	
 	#header('Expires: ' . gmdate('D, d M Y H:i:s', (int)$_SERVER["REQUEST_TIME"] + $cache_for) . ' GMT');
-    header("Expires: Tue, 01 Dec 2037 16:00:00 GMT");
-    $cache_for = 31536000;
-    
 	header("Cache-Control: public, max-age=$cache_for");
-	
-	header('Age: ' . (((int)$_SERVER["REQUEST_TIME"] - $last_modified) % $cache_for));
-	header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $last_modified) . ' GMT');
-	
-	// Do some GZip goodness
-	//ob_start("ob_gzhandler");
 	
 	if($_SERVER["REQUEST_METHOD"] == 'HEAD')
 		return;

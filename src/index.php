@@ -83,6 +83,13 @@ if($site === false) {
 		$mathod_name = '';
 		$method_arguments = array();
 		
+		function load_defaultmethodfile() {
+			global $path_name;
+			if(!is_file($path = PATH_PREFIX . "$path_name/__default.methods.php"))
+				return false;
+			return load_methodfile($path);
+		}
+		
 		function load_methodfile($path) {
 			global $method_base, $method_level;
 			
@@ -118,7 +125,7 @@ if($site === false) {
 		if(!empty($path)) {
 			// Loop through each of the path segments
 			for($i=0;$i<$path_len;$i++) {
-				$pathlet = array_shift($path);
+				$pathlet = $path[$i];
 				
 				// Let's assume that the user is referring to the file:
 				// /endpoints/endpoint_name/path/so/far/whatever_this_segment_is
@@ -139,7 +146,7 @@ if($site === false) {
 						// If it's a directory, we're looking for a class within it. Append the
 						// search path with the current segment and continue searching.
 						} elseif(is_dir($possible_match)) {
-							$path_name .= "$pathlet/";
+							$path_name .= "/$pathlet";
 							break;
 						
 						// If it's a file (ending in .methods.php), start the proverbial car because
@@ -150,6 +157,14 @@ if($site === false) {
 								break;
 							
 							break 2;
+							
+						// Try to load the default method file
+						} elseif(load_defaultmethodfile()) {
+							
+							// We didn't consume this pathlet, so look for it as a method.
+							$i--;
+							continue;
+							
 						}
 						
 						// Nothing was found that applies.
@@ -158,10 +173,14 @@ if($site === false) {
 						// Disallow access to magic functions
 						if(substr($pathlet, 0, 2) == "__")
 							break 2;
-						if(method_exists($method_base, $pathlet)) {
+						
+						if(method_exists($method_base, $pathlet) || method_exists($method_base, $pathlet = "_$pathlet")) {
 							$method_name = $pathlet;
 							$method_level++;
 							continue;
+						} else {
+							load_page("404", 404);
+							exit;
 						}
 						break 2;
 					case 2: // Seek Arguments
@@ -172,10 +191,9 @@ if($site === false) {
 			}
 		}
 		
-		if($method_level == 0 && is_file(PATH_PREFIX . "$path_name/__default.methods.php")) {
-			if(!load_methodfile(PATH_PREFIX . "$path_name/__default.methods.php"))
-				exit;
-		}
+		// Try one last-ditch attempt to load a default file.
+		if($method_level == 0)
+			load_defaultmethodfile();
 		
 		// If the methods class implements a default method, call that and don't fail.
 		if($method_level == 1 && method_exists($method_base, '__default')) {
