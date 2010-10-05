@@ -224,6 +224,7 @@ class lib_form {
 			'name'=>'input',
 			'attributes'=>array(
 				'name'=>$name,
+				'id'=>$name,
 				'class'=>'hidden',
 				'type'=>'hidden',
 				'value'=>$value

@@ -40,4 +40,11 @@ class HttpResponse {
 	}
 	public function output() {echo $this->data;}
 }
+class JSONResponse {
+	public $data = array();
+	public function __construct($response) {
+		$this->data = $response;
+	}
+	public function output() {echo json_encode($this->data);}
+}
 
