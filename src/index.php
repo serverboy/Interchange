@@ -68,8 +68,10 @@ if($site === false) {
 		if(isset($$i))
 			unset($$i);
 	
-	require('sessionmanager.php');
-	$session = new session_manager();
+	if(!defined("NOSESSION")) {
+		require('sessionmanager.php');
+		$session = new session_manager();
+	}
 	require('views.php');
 	require('procedures/libraries.php');
 	require('pipes.php'); // Must be loaded after libraries.

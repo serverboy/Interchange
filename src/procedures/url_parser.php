@@ -54,6 +54,7 @@ if(IXG_KV_URL_CACHE && $url_cache = $keyval->get($url_id)) {
 	define("EXTENSION", $url_cache["extension"]);
 	define("TRAILING_SLASH", $url_cache["trailing_slash"]);
 	define('REQUESTED_FILE', $url_cache["requested_file"]);
+	define('NOSESSION', $url_cache["nosession"]);
 	if($url_cache["methodical"])
 		define("METHODICAL", true);
 	
@@ -117,6 +118,7 @@ if(IXG_KV_URL_CACHE && $url_cache = $keyval->get($url_id)) {
 			"trailing_slash"=>TRAILING_SLASH,
 			"requested_file"=>REQUESTED_FILE,
 			"methodical"=>defined("METHODICAL"),
+			"nosession"=>defined("NOSESSION"),
 			"site"=>$site,
 			"libraries"=>empty($libraries)?array():$libraries
 		)));

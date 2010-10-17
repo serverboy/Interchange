@@ -93,6 +93,10 @@ class interchange {
 				case 'app':
 					return $child->endpoint;
 					
+				case 'nosession':
+					define("NOSESSION", true);
+					break;
+					
 				case 'redirect':
 					$href = $child->href;
 					
