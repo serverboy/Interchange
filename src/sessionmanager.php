@@ -28,9 +28,9 @@ class session_manager {
 		global $keyval;
 		
 		if(IXG_KV_SESSIONS) {
-			$ip = (getenv(HTTP_X_FORWARDED_FOR))
-				?  getenv(HTTP_X_FORWARDED_FOR)
-				:  getenv(REMOTE_ADDR);
+			$ip = (getenv('HTTP_X_FORWARDED_FOR'))
+				?  getenv('HTTP_X_FORWARDED_FOR')
+				:  getenv('REMOTE_ADDR');
 			
 			$has_session = false;
 			
