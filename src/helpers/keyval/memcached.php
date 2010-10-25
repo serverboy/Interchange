@@ -45,7 +45,13 @@ class memcached_driver {
 		$this->mc->delete($id);
 	}
 	public function set($name, $data, $expiration = 0) {
-		$this->mc->set($name, $data, 0, $expiration);
+		switch(IXG_MEMCACHED_TYPE) {
+			case 'MEMCACHED':
+				$this->mc->set($name, $data, $expiration);
+				break;
+			default:
+				$this->mc->set($name, $data, 0, $expiration);
+		}
 	}
 	public function get($name) {
 		return $this->mc->get($name);
