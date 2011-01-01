@@ -1,4 +1,5 @@
 async.txt
 src/endpoints
+!src/endpoints/test
 src/libraries/cloud
 src/views
