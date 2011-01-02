@@ -20,10 +20,11 @@ limitations under the License.
 
 */
 
+
 function load_page($page, $http_code=200) {
 	require_once(IXG_PATH_PREFIX . 'http_codes.php');
 	header($error_codes[$http_code]);
-	readfile("./pages/$page.php");
+	readfile(IXG_PATH_PREFIX . "pages/$page.php");
 }
 
 function load_script_file($file) {
@@ -38,14 +39,14 @@ function load_local_file($file, $extension = '', $may_execute=true) {
 		return load_page("404", 405);
 	}
 	
-	if(strtoupper($extension) == 'PHP') {
+	if($extension == 'php') { // Already lowercase
 		if($may_execute)
 			return load_script_file($file);
 		else
 			return load_page("405", 405);
 	}
 	
-	require('mimes.php');
+	require(IXG_PATH_PREFIX . 'mimes.php');
 	if(isset($mimes[$extension]))
 		header('Content-type: ' . $mimes[$extension]);
 	else

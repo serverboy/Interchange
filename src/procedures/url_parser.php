@@ -20,19 +20,9 @@ limitations under the License.
 
 */
 
-$port = (int)$_SERVER['SERVER_PORT'];
 // Get the protocol
-switch($port) {
-	case '443':
-		$protocol = 'https';
-		break;
-	case '80':
-	case '8000':
-	case '8080':
-	default:
-		$protocol = 'http';
-		break;
-}
+$port = (int)$_SERVER['SERVER_PORT'];
+$protocol = ($port==443)?"https":"http";
 
 $domain = $_SERVER['HTTP_HOST'];
 $path = $_SERVER['REQUEST_URI'];

@@ -32,12 +32,8 @@ define('IXG_PATH_PREFIX', $location . (strlen($location) > 1 ? '/' : ''));
 require("helpers/keyval.php");
 
 $libraries = array();
-$wildcards = array();
 require("parser.php");
 require("procedures/url_parser.php");
-
-if(!defined('IXG_LOG'))
-	define('IXG_LOG', IXG_PATH_PREFIX . 'access.log');
 
 if(count($actual_file) == 0)
 	define('FILE', '');
@@ -179,6 +175,11 @@ if($site === false) {
 						if(method_exists($method_base, $pathlet) || method_exists($method_base, $pathlet = "_$pathlet")) {
 							$method_name = $pathlet;
 							$method_level++;
+							continue;
+						} elseif(method_exists($method_base, "__default")) {
+							$method_name = "__default";
+							$method_level++;
+							$i--; // Pull this back in as an argument
 							continue;
 						} else {
 							load_page("404", 404);
