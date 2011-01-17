@@ -39,17 +39,11 @@ class interchange {
 	}
 	
 	function domain($node, $level = 0) {
-		global $split_domain, $wildcards;
+		global $split_domain;
 		
 		$domain = $node->domain;
 		
-		// If this is a subdomain, allow for a wildcard
-		if ($level > 0 && !empty($split_domain[$level]) && $domain == '_wildcard') {
-			$varname = $node->variable;
-			$wildcards[$varname] = $split_domain[$level];
-		// If this domain/subdomain object doesn't match the current URL, then we
-		// don't have any more instructions
-		} elseif(empty($split_domain[$level]) || $split_domain[$level] != $domain)
+		if(empty($split_domain[$level]) || $split_domain[$level] != $domain)
 			return false;
 		
 		$output = self::traverse($node->policies, $level + 1);
@@ -60,14 +54,11 @@ class interchange {
 	}
 	
 	function folder($node, $folder_level = 0) {
-		global $path, $actual_file, $wildcards;
+		global $path, $actual_file;
 		
 		$folder = $node->folder;
 		
-		if(!empty($path[$folder_level]) && $folder == '_wildcard') {
-			$varname = $node->variable;
-			$wildcards[$varname] = $path[$folder_level];
-		} elseif(!isset($path[$folder_level]) || $path[$folder_level] != (string)$folder)
+		if(!isset($path[$folder_level]) || $path[$folder_level] != (string)$folder)
 			return false;
 		
 		// Shift the path up a directory.
@@ -88,6 +79,9 @@ class interchange {
 			$type = $child->type;
 			switch($type) {
 				
+				case 'subscript':
+					return $this->parse(IXG_PATH_PREFIX . "/subscripts/" . $child->script);
+					
 				case 'methods':
 					define("METHODICAL", true);
 				case 'app':
