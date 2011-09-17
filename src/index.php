@@ -64,7 +64,7 @@ if($site === false) {
 		if(isset($$i))
 			unset($$i);
 	
-	if(!defined("NOSESSION")) {
+	if(!defined("NOSESSION") || !NOSESSION) {
 		require('sessionmanager.php');
 		$session = new session_manager();
 	}
