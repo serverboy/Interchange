@@ -21,97 +21,97 @@ limitations under the License.
 */
 
 class interchange {
-	
+
 	function parse($directory) {
 		// Load the JSON file
 		$json = file_get_contents($directory);
 		$data = json_decode($json);
-		
+
 		// Iterate each root (domain)
 		foreach($data as $root) {
 			$endpoint = self::domain($root);
 			if(!empty($endpoint))
 				break;
 		}
-		
+
 		// Return an endpoint if it exists
 		return (!empty($endpoint)) ? $endpoint : false;
 	}
-	
+
 	function domain($node, $level = 0) {
 		global $split_domain;
-		
+
 		$domain = $node->domain;
-		
-		if(empty($split_domain[$level]) || $split_domain[$level] != $domain)
+
+		if($parser != "*" && (empty($split_domain[$level]) || $split_domain[$level] != $domain))
 			return false;
-		
+
 		$output = self::traverse($node->policies, $level + 1);
 		if(is_string($output) && !empty($domain->log))
 			define('`', (string)$domain->log);
-		
+
 		return $output;
 	}
-	
+
 	function folder($node, $folder_level = 0) {
 		global $path, $actual_file;
-		
+
 		$folder = $node->folder;
-		
+
 		if(!isset($path[$folder_level]) || $path[$folder_level] != (string)$folder)
 			return false;
-		
+
 		// Shift the path up a directory.
 		array_shift($actual_file);
-		
+
 		$result = self::traverse($node->policies, 0, $folder_level + 1);
-		
+
 		if($result === false)
 			return true;
 		else
 			return $result;
 	}
-	
+
 	private function traverse($node, $domain_level = 0, $folder_level = 0) {
 		global $libraries;
-		
+
 		foreach($node as $child) {
 			$type = $child->type;
 			switch($type) {
-				
+
 				case 'subscript':
 					return $this->parse(IXG_PATH_PREFIX . "/subscripts/" . $child->script);
-					
+
 				case 'methods':
 					define("METHODICAL", true);
 				case 'app':
 					return $child->endpoint;
-					
+
 				case 'nosession':
 					define("NOSESSION", true);
 					break;
-					
+
 				case 'redirect':
 					$href = $child->href;
-					
+
 					if(isset($child->http)) {
 						$http_code = intval($child->http);
-						
+
 						require_once(IXG_PATH_PREFIX . 'http_codes.php');
 						if(isset($redirect_codes[$http_code]))
 							header($redirect_codes[$http_code]);
 					}
-					
+
 					header('Location: ' . $href);
 					exit;
 				case 'error':
 					$http_code = intval($child->http);
-					
+
 					require_once(IXG_PATH_PREFIX . 'http_codes.php');
 					if(!isset($error_codes[$http_code]))
 						$http_code = 404;
 					header($error_codes[$http_code]);
-					
+
 					if(isset($child->page))
 						require(IXG_PATH_PREFIX . $child->page);
 					exit;
@@ -135,5 +135,5 @@ class interchange {
 		}
 		return false;
 	}
-	
+
 }
