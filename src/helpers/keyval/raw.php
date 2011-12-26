@@ -22,12 +22,12 @@ limitations under the License.
 
 class raw_driver {
 	private $data = array();
-	
+
 	public function __construct() {
 		if(!file_exists(IXG_RAW)) {
 			file_put_contents(IXG_RAW, "{}");
 		}
-		$this->data = json_decode(file_get_contents(IXG_RAW));
+		$this->data = json_decode(file_get_contents(IXG_RAW), true);
 	}
 	public function destroy($id) {
 		unset($this->data[$id]);
