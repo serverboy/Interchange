@@ -32,10 +32,10 @@ if(IXG_KV_URL_CACHE)
 	$url_id = "urlcache:" . filemtime('index.json') . SUPER_SECRET . ':' . sha1($url);
 
 if(IXG_KV_URL_CACHE && $url_cache = $keyval->get($url_id)) {
-	
+
 	$url_cache = unserialize($url_cache);
 	//var_dump($url_cache);
-	
+
 	$site = $url_cache["site"];
 	$libraries = $url_cache["libraries"];
 	$final_path = $url_cache["final_path"];
@@ -44,12 +44,14 @@ if(IXG_KV_URL_CACHE && $url_cache = $keyval->get($url_id)) {
 	define("EXTENSION", $url_cache["extension"]);
 	define("TRAILING_SLASH", $url_cache["trailing_slash"]);
 	define('REQUESTED_FILE', $url_cache["requested_file"]);
-	define('NOSESSION', $url_cache["nosession"]);
+    define('NOSESSION', $url_cache["nosession"]);
+    if(!empty($url_cache["proxy"]))
+    	define('IXG_PROXY', $url_cache["proxy"]);
 	if($url_cache["methodical"])
 		define("METHODICAL", true);
-	
+
 } else {
-	
+
 	// Get the domain
 	$split_domain = explode('.', $domain);
 	$split_domain = array_reverse($split_domain);
@@ -62,12 +64,12 @@ if(IXG_KV_URL_CACHE && $url_cache = $keyval->get($url_id)) {
 			$minlen--;
 	} while (strlen($split_domain[0]) <= $minlen);
 	unset($minlen);
-	
+
 	// Get the path and file
 	if(strpos($path, '?') !== false)
 		$path = substr($path, 0, strpos($path, '?'));
 	define("TRAILING_SLASH", substr($path, -1) == '/');
-	
+
 	$path = explode('/', $path);
 	$new_path = array();
 	foreach($path as $p) {
@@ -79,7 +81,7 @@ if(IXG_KV_URL_CACHE && $url_cache = $keyval->get($url_id)) {
 	}
 	$path = $new_path;
 	unset($new_path);
-	
+
 	if($path_count = count($path)) {
 		$final_path = urldecode($path[$path_count - 1]);
 		unset($path_count);
@@ -90,16 +92,16 @@ if(IXG_KV_URL_CACHE && $url_cache = $keyval->get($url_id)) {
 		define('EXTENSION', strtolower($expl[count($expl)-1]));
 	} else
 		define('EXTENSION', '');
-	
+
 	// We'll depopulate this in the parser.
 	$actual_file = $path;
-	
+
 	# TODO: Make the parser suck less with all these extra variables.
 	$site = interchange::parse('index.json');
 	$path = $actual_file;
-	
+
 	define('REQUESTED_FILE', implode('/', $actual_file));
-	
+
 	if(IXG_KV_URL_CACHE)
 		$keyval->set($url_id, serialize(array(
 			"actual_file"=>$actual_file,
@@ -110,9 +112,10 @@ if(IXG_KV_URL_CACHE && $url_cache = $keyval->get($url_id)) {
 			"methodical"=>defined("METHODICAL"),
 			"nosession"=>defined("NOSESSION"),
 			"site"=>$site,
-			"libraries"=>empty($libraries)?array():$libraries
+            "libraries"=>empty($libraries)?array():$libraries,
+            "proxy"=>defined("PROXY")
 		)));
-	
+
 }
 
 define('PROTOCOL', $protocol);
