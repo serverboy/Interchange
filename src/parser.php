@@ -43,7 +43,7 @@ class interchange {
 
 		$domain = $node->domain;
 
-		if($parser != "*" && (empty($split_domain[$level]) || $split_domain[$level] != $domain))
+		if($domain != "*" && (empty($split_domain[$level]) || $split_domain[$level] != $domain))
 			return false;
 
 		$output = self::traverse($node->policies, $level + 1);
