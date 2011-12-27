@@ -82,6 +82,8 @@ class interchange {
 				case 'subscript':
 					return $this->parse(IXG_PATH_PREFIX . "/subscripts/" . $child->script);
 
+				case 'proxy':
+					define("IXG_PROXY", true);
 				case 'methods':
 					define("METHODICAL", true);
 				case 'app':

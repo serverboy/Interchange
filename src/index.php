@@ -55,15 +55,15 @@ if($site === false) {
     if(!$fulfilled)
         load_page("404", 404);
 } else {
-	
+
 	define('PATH_PREFIX', IXG_PATH_PREFIX . 'endpoints/' . $site);
-	
+
 	// Do some cleanup
 	$initialized = array('port', 'directories', 'domain', 'split_domain', 'tld', 'file', 'url', 'site', 'final_path', 'expl');
 	foreach($initialized as $i)
 		if(isset($$i))
 			unset($$i);
-	
+
 	if(!defined("NOSESSION") || !NOSESSION) {
 		require('sessionmanager.php');
 		$session = new session_manager();
@@ -71,36 +71,36 @@ if($site === false) {
 	require('views.php');
 	require('procedures/libraries.php');
 	require('pipes.php'); // Must be loaded after libraries.
-	
+
 	if(defined("METHODICAL")) {
-		
+
 		$method_level = 0;
 		$path_name = '';
 		$path_len = count($path);
 		$method_base = null;
 		$mathod_name = '';
 		$method_arguments = array();
-		
+
 		function load_defaultmethodfile() {
 			global $path_name;
 			if(!is_file($path = PATH_PREFIX . "$path_name/__default.methods.php"))
 				return false;
 			return load_methodfile($path);
 		}
-		
+
 		function load_methodfile($path) {
 			global $method_base, $method_level;
-			
+
 			// Load in the stuff methodical endpoints use.
 			require("procedures/methodical_requirements.php");
-			
+
 			// If something gets fried, don't stop the world.
 			try {
 				// Load up the PHP file that contains the methods. Note that we
 				// can just do this because the URL parser sanitizes everything
 				// for us.
 				require($path);
-				
+
 				// If the file implements full methodical functionality, proceed
 				// with the methodical flow. Otherwise, just exit.
 				if(class_exists('methods')) {
@@ -113,65 +113,68 @@ if($site === false) {
 					// code, so we assume it ran successfully.
 					exit;
 				}
-				
+
 			} catch(Exception $e) {
 				return false;
 			}
 			return true;
 		}
-		
+
 		if(!empty($path)) {
 			// Loop through each of the path segments
 			for($i=0;$i<$path_len;$i++) {
 				$pathlet = $path[$i];
-				
+
 				// Let's assume that the user is referring to the file:
 				// /endpoints/endpoint_name/path/so/far/whatever_this_segment_is
 				$possible_match = PATH_PREFIX . "$path_name/$pathlet";
-				
+
 				switch($method_level) {
 					case 0: // Seek Files
-						
-						// If it's a file (without a PHP extension), load it like a static endpoint
-						if(is_file($possible_match) && substr($pathlet, -4) != ".php") {
+
+                        // If it's a file (without a PHP extension), load it
+                        // like a static endpoint. Also load it if we're
+                        // proxying the PHP request.
+                        if(is_file($possible_match) &&
+                           (defined("IXG_PROXY") || substr($pathlet, -4) != ".php")) {
 							// If it can be loaded, we're done. Make sure we don't load it as a
 							// directory.
 							// This should match the code to load a static file in
 							// /procedures/local_files.php
 							load_local_file($possible_match, EXTENSION, false);
 							exit; // We're done, so break
-						
+
 						// If it's a directory, we're looking for a class within it. Append the
 						// search path with the current segment and continue searching.
 						} elseif(is_dir($possible_match)) {
 							$path_name .= "/$pathlet";
 							break;
-						
+
 						// If it's a file (ending in .methods.php), start the proverbial car because
 						// we're probably going to wind up with a methodical endpoint.
-						} elseif(is_file($possible_match . ".methods.php") && $pathlet != "__default") {
-							
+						} elseif(!defined("IXG_PROXY") && is_file($possible_match . ".methods.php") && $pathlet != "__default") {
+
 							if(load_methodfile($possible_match . ".methods.php"))
 								break;
-							
+
 							break 2;
-							
+
 						// Try to load the default method file
-						} elseif(load_defaultmethodfile()) {
-							
+						} elseif(!defined("IXG_PROXY") && load_defaultmethodfile()) {
+
 							// We didn't consume this pathlet, so look for it as a method.
 							$i--;
 							continue;
-							
+
 						}
-						
+
 						// Nothing was found that applies.
 						break 2;
 					case 1: // Seek Functions
 						// Disallow access to magic functions
 						if(substr($pathlet, 0, 2) == "__")
 							break 2;
-						
+
 						if(method_exists($method_base, $pathlet) || method_exists($method_base, $pathlet = "_$pathlet")) {
 							$method_name = $pathlet;
 							$method_level++;
@@ -193,17 +196,20 @@ if($site === false) {
 				}
 			}
 		}
-		
+
+        if(defined("IXG_PROXY"))
+            load_page("404", 404);
+
 		// Try one last-ditch attempt to load a default file.
 		if($method_level == 0)
 			load_defaultmethodfile();
-		
+
 		// If the methods class implements a default method, call that and don't fail.
 		if($method_level == 1 && method_exists($method_base, '__default')) {
 			$method_name = '__default';
 			$method_level++;
 		}
-		
+
 		# TODO : This might not fire if the error occurs on the last item;
 		// Throw a 404 if the URL doesn't specify a class and method
 		if($method_level < 2)
@@ -221,12 +227,12 @@ if($site === false) {
 				$result->output();
 			}
 		}
-		
+
 	} elseif(is_file(PATH_PREFIX . '/endpoint.php')) {
 		load_script_file(PATH_PREFIX . '/endpoint.php');
 	} else {
 		ini_set("include_path", PATH_PREFIX . ':' . ini_get("include_path"));
-		
+
 		if(!doload(PATH_PREFIX . '/' . REQUESTED_FILE)) {
 			load_page("404", 404);
 		}
