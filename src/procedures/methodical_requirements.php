@@ -47,4 +47,14 @@ class JSONResponse {
 	}
 	public function output() {echo json_encode($this->data);}
 }
+class HttpRedirect {
+    public $url = '';
+    public function __construct($url) {
+        $this->url = $url;
+    }
+    public function output() {
+        header("Location: " . $this->url);
+        exit;
+    }
+}
 
