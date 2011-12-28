@@ -141,7 +141,10 @@ if($site === false) {
 							// directory.
 							// This should match the code to load a static file in
 							// /procedures/local_files.php
-							load_local_file($possible_match, EXTENSION, defined("IXG_PROXY"));
+							if(defined("IXG_PROXY") && EXTENSION == "php")
+								require($possible_match);
+							else
+								load_local_file($possible_match, EXTENSION, false);
 							exit; // We're done, so break
 
 						// If it's a directory, we're looking for a class within it. Append the
