@@ -1,0 +1,3 @@
+[submodule "src/libraries/requests"]
+	path = src/libraries/requests
+	url = git://github.com/rmccue/Requests.git
