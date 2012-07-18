@@ -28,10 +28,10 @@ class view_manager {
 	public static function set_value($name, $value) {
 		self::$values[$name] = $value;
 	}
-	public static function get_value($name) {
+	public static function get_value($name, $default='') {
 		if(isset(self::$values[$name]))
 			return self::$values[$name];
-		return '';
+		return $default;
 	}
 	public static function add_view($name) {
 		self::$stack[] = $name;
