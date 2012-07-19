@@ -20,15 +20,15 @@ limitations under the License.
 
 */
 
-class view_manager {
+class views {
 	
 	public static $stack = array();
 	public static $values = array();
 	
-	public static function set_value($name, $value) {
+	public static function set($name, $value) {
 		self::$values[$name] = $value;
 	}
-	public static function get_value($name, $default='') {
+	public static function get($name, $default='') {
 		if(isset(self::$values[$name]))
 			return self::$values[$name];
 		return $default;
@@ -59,4 +59,9 @@ class view_manager {
 	}
 	public static function dump() {self::$stack = array();}
 	
+}
+
+class view_manager extends views {
+	public static function set_value($name, $value) {return self::set($name, $value);}
+	public static function get_value($name, $default='') {return self::get($name, $default);}
 }
