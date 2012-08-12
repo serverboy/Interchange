@@ -59,7 +59,10 @@ if(IXG_KV_URL_CACHE && $url_cache = $keyval->get($url_id)) {
 	do {
 		$minlen++;
 		$tld = array_shift($split_domain);
-		$split_domain[0] .= '.' . $tld;
+		if(empty($split_domain))
+			$split_domain[] = $tld;
+		else
+			$split_domain[0] .= '.' . $tld;
 		if($minlen > 3)
 			$minlen--;
 	} while (strlen($split_domain[0]) <= $minlen);
