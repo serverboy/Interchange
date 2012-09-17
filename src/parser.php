@@ -22,7 +22,7 @@ limitations under the License.
 
 class interchange {
 
-	function parse($directory) {
+	public static function parse($directory) {
 		// Load the JSON file
 		$json = file_get_contents($directory);
 		$data = json_decode($json);
@@ -38,7 +38,7 @@ class interchange {
 		return (!empty($endpoint)) ? $endpoint : false;
 	}
 
-	function domain($node, $level = 0) {
+	public static function domain($node, $level = 0) {
 		global $split_domain;
 
 		$domain = $node->domain;
@@ -53,7 +53,7 @@ class interchange {
 		return $output;
 	}
 
-	function folder($node, $folder_level = 0) {
+	public static function folder($node, $folder_level = 0) {
 		global $path, $actual_file;
 
 		$folder = $node->folder;
@@ -72,7 +72,7 @@ class interchange {
 			return $result;
 	}
 
-	private function traverse($node, $domain_level = 0, $folder_level = 0) {
+	public static function traverse($node, $domain_level = 0, $folder_level = 0) {
 		global $libraries;
 
 		foreach($node as $child) {
