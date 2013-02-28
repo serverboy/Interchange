@@ -35,6 +35,7 @@ $mimes = array(
 	'css' => 'text/css',
 	'js' => 'text/javascript',
 	'webapp' => 'application/x-web-app-manifest+json',
+	'woff' => 'application/font-woff',
 	'xml' => 'application/xml',
 	'xhtml' => 'application/xml',
 	'zip' => 'application/zip'
