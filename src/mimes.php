@@ -7,6 +7,7 @@ $mimes = array(
 	'asx' => 'video/x-ms-asf',
 	'avi' => 'video/x-msvideo',
 	'gif' => 'image/gif',
+	'htc' => 'text/x-component', // HTML controls for IE
 	'ico' => 'image/x-icon',
 	'jpg' => 'image/jpeg',
 	'jpeg' => 'image/jpeg',
@@ -33,8 +34,8 @@ $mimes = array(
 	'htm' => 'text/html',
 	'css' => 'text/css',
 	'js' => 'text/javascript',
+	'webapp' => 'application/x-web-app-manifest+json',
 	'xml' => 'application/xml',
 	'xhtml' => 'application/xml',
-	'htc' => 'text/x-component', // HTML controls for IE
 	'zip' => 'application/zip'
 );
